@@ -4,10 +4,14 @@ import NFC.NFCStorageHandler;
 import NFC.NFCUtil;
 import NFC.PasswordService;
 import com.tinkerforge.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
 public class tester {
+
+  private Logger logger = LoggerFactory.getLogger(this.getClass());
   private static final String HOST = "localhost";
   private static final int PORT = 4223;
   private static final String UID = "6rGJtJ"; // Change to your UID
@@ -43,7 +47,7 @@ public class tester {
             BrickletNFC.ReaderGetTagID ret = nfc.readerGetTagID();
 
             if (ret.tagType != BrickletNFC.TAG_TYPE_MIFARE_CLASSIC) {
-              System.out.println("Tag is not MiFare");
+              logger.info("Tag is not MiFare");
 
               return;
             }
@@ -81,7 +85,7 @@ public class tester {
           }
         }
         else if (state == BrickletNFC.READER_STATE_REQUEST_TAG_ID_ERROR) {
-          System.out.println("Request tag ID error");
+          logger.info("Request tag ID error");
         }
         else if (state == BrickletNFC.READER_STATE_REQUEST_PAGE_READY) {
           try {
@@ -102,13 +106,13 @@ public class tester {
           }
         }
         else if (state == BrickletNFC.READER_STATE_WRITE_PAGE_READY) {
-          System.out.println("Write page ready");
+          logger.info("Write page ready");
         }
         else if (state == BrickletNFC.READER_STATE_REQUEST_PAGE_ERROR) {
-          System.out.println("Request page error");
+          logger.info("Request page error");
         }
         else if (state == BrickletNFC.READER_STATE_WRITE_PAGE_ERROR) {
-          System.out.println("Write page error");
+          logger.info("Write page error");
         }
       }
     };
@@ -119,12 +123,12 @@ public class tester {
     } catch (NetworkException e) {
       e.printStackTrace();
     }
-    System.out.println("connected.");
+    logger.info("connected.");
     nfc.addReaderStateChangedListener(listener);
     try {
       nfc.setMode(BrickletNFC.MODE_READER);
 
-      System.out.println("Press key to exit"); System.in.read();
+      logger.info("Press key to exit"); System.in.read();
       ipcon.disconnect();
       tagData.saveTags();
     } catch (NotConnectedException e) {

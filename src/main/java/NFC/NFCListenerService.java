@@ -3,10 +3,14 @@ package NFC;
 import com.tinkerforge.BrickletNFC;
 import com.tinkerforge.NotConnectedException;
 import com.tinkerforge.TimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
 public class NFCListenerService {
+
+  private Logger logger = LoggerFactory.getLogger(this.getClass());
   private BrickletNFC nfc;
   public BrickletNFC.ReaderStateChangedListener explorerService;
   public BrickletNFC.ReaderStateChangedListener passwordExplorer;
@@ -57,7 +61,7 @@ public class NFCListenerService {
           try {
             String tagId = generateTagIdString(nfc.readerGetTagID());
             int[] foundPW = pwService.getPassword();
-            System.out.format("Password found: %s - for Tag ID [%s]\n", buildPassword(foundPW), tagId);
+            logger.info("Password found: %s - for Tag ID [%s]\n", buildPassword(foundPW), tagId);
             storageHandler.createTag(nfc.readerGetTagID(), foundPW);
             if (commonPage < 4) {
               nfc.readerRequestPage(commonPage, 16);

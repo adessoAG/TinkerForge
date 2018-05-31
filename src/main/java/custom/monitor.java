@@ -1,21 +1,25 @@
 package custom;
 
-public class monitor implements Runnable{
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-  private tester myclass;
+public class monitor implements Runnable {
 
-  public monitor(tester myclass) {
-    this.myclass = myclass;
-  }
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private tester myclass;
 
-  public void run(){
-    while (true){
-      try {
-        Thread.sleep(1000);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-      System.out.println("Current Password: " + myclass.buildPassword());
+    public monitor(tester myclass) {
+        this.myclass = myclass;
     }
-  }
+
+    public void run() {
+        while (true) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            logger.info("Current Password: " + myclass.buildPassword());
+        }
+    }
 }

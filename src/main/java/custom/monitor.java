@@ -1,7 +1,5 @@
 package custom;
 
-import custom.tester;
-
 public class monitor implements Runnable{
 
   private tester myclass;

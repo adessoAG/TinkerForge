@@ -1,10 +1,14 @@
 package NFC;
 
 import com.tinkerforge.BrickletNFC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
 public class NFCStorageHandler {
+
+  private Logger logger = LoggerFactory.getLogger(this.getClass());
   private static final String pathName = "C:\\Users\\hoefken\\Desktop\\nfc.ser";
   private static final boolean printDiff = true;
   private HashMap<String, NFCData> dataObject;
@@ -12,7 +16,7 @@ public class NFCStorageHandler {
   public NFCStorageHandler(boolean loadSaves) {
     if (loadSaves) {  NFCTagLoader.deserializeTagData(pathName);}
     if (dataObject == null) {
-      System.out.println("Error on loading Tag data.");
+      logger.info("Error on loading Tag data.");
       dataObject = new HashMap<String, NFCData>();
     }
   }
@@ -40,7 +44,7 @@ public class NFCStorageHandler {
     } else {
       createTag(ret);
       candidate = insertPagesToTag(ret, pageNumber, pageData);
-      System.out.println("Tag not found. New Tag created.");
+      logger.info("Tag not found. New Tag created.");
     }
     return candidate;
   }
@@ -54,7 +58,7 @@ public class NFCStorageHandler {
       }
     }
     if (result.contains(",")) {
-      System.out.println(result.substring(0, result.length() - 1));
+      logger.info(result.substring(0, result.length() - 1));
     }
   }
 

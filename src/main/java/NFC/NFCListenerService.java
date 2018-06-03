@@ -3,72 +3,80 @@ package NFC;
 import com.tinkerforge.BrickletNFC;
 import com.tinkerforge.NotConnectedException;
 import com.tinkerforge.TimeoutException;
+import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-
+/**
+ * Provider for different services involving the NFC reader.
+ * Initialize with the TinkerForge BrickletNFC and a NFCStorageHandler
+ *
+ * @see NFCStorageHandler
+ */
 public class NFCListenerService {
 
-  private Logger logger = LoggerFactory.getLogger(this.getClass());
-  private BrickletNFC nfc;
+  /**
+   * Service to explore new Tags
+   */
   public BrickletNFC.ReaderStateChangedListener explorerService;
   public BrickletNFC.ReaderStateChangedListener passwordExplorer;
+  public BrickletNFC.ReaderStateChangedListener dataExtractionService;
   public NFCStorageHandler storageHandler;
-  private HashMap<String, BrickletNFC.ReaderStateChangedListener> passwordStorage = new HashMap<String, BrickletNFC.ReaderStateChangedListener>();
+  private Logger logger = LoggerFactory.getLogger(this.getClass());
+  private BrickletNFC nfc;
+  private BrickletNFC.ReaderGetTagID ret;
 
   public NFCListenerService(BrickletNFC nfc, NFCStorageHandler sHandler) {
     this.nfc = nfc;
     this.storageHandler = sHandler;
   }
 
-  private void registerServices() {
-    explorerService = new BrickletNFC.ReaderStateChangedListener() {
-      public void readerStateChanged(int state, boolean idle) {
-        if (state == BrickletNFC.READER_STATE_IDLE) {
-          try {
-            nfc.readerRequestTagID();
-          } catch (Exception e) {
-            return;
-          }
-        } else if (state == BrickletNFC.READER_STATE_REQUEST_TAG_ID_READY) {
-          try {
-            BrickletNFC.ReaderGetTagID ret = nfc.readerGetTagID();
-            storageHandler.createTag(ret);
-          } catch (Exception e) {
-            return;
-          }
+  public void registerServices() {
+    explorerService = (state, idle) -> {
+      if (state == BrickletNFC.READER_STATE_IDLE) {
+        try {
+          nfc.readerRequestTagID();
+        } catch (Exception e) {
+          return;
+        }
+      } else if (state == BrickletNFC.READER_STATE_REQUEST_TAG_ID_READY) {
+        try {
+          ret = nfc.readerGetTagID();
+          storageHandler.createTag(ret);
+        } catch (Exception e) {
+          return;
         }
       }
     };
     passwordExplorer = new BrickletNFC.ReaderStateChangedListener() {
-      private int commonCounter = 0;
       private int commonPage = 0;
-      private PasswordService pwService = new PasswordService();
+      private Pair<NFCData, PasswordService> candidate;
+      private Logger anylogger = LoggerFactory.getLogger(logger.getName() + ".passwordExplorer");
 
       public void readerStateChanged(int state, boolean idle) {
-        if (state == BrickletNFC.READER_STATE_REQUEST_TAG_ID_READY) {
+        if (ret == null) {
+          return;
+        } else if (state == BrickletNFC.READER_STATE_REQUEST_TAG_ID_READY) {
           try {
-            BrickletNFC.ReaderGetTagID ret = nfc.readerGetTagID();
             if (ret.tagType != BrickletNFC.TAG_TYPE_MIFARE_CLASSIC) {
               return;
             }
-            nfc.readerAuthenticateMifareClassicPage(commonPage, 0, pwService.enumeratePassWord(commonCounter++));
+            candidate = storageHandler.getDataPair(ret);
+            nfc.readerAuthenticateMifareClassicPage(commonPage, 0, candidate.getValue1().enumeratePassWord());
           } catch (Exception e) {
             return;
           }
         } else if (state == BrickletNFC.READER_STATE_AUTHENTICATE_MIFARE_CLASSIC_PAGE_READY) {
           try {
-            String tagId = generateTagIdString(nfc.readerGetTagID());
-            int[] foundPW = pwService.getPassword();
-            logger.info("Password found: %s - for Tag ID [%s]\n", buildPassword(foundPW), tagId);
-            storageHandler.createTag(nfc.readerGetTagID(), foundPW);
+            candidate = storageHandler.getDataPair(ret);
+            int[] foundPW = candidate.getValue1().getPassword();
+            candidate.getValue0().setPassword(foundPW);
+            String tagId = generateTagIdString(ret);
+            anylogger.info(String.format("Password found: %s - for Tag ID [%s]", buildPassword(foundPW), tagId));
             if (commonPage < 4) {
               nfc.readerRequestPage(commonPage, 16);
             }
-          } catch (TimeoutException e) {
-            e.printStackTrace();
-          } catch (NotConnectedException e) {
+          } catch (TimeoutException | NotConnectedException e) {
             e.printStackTrace();
           }
         } else if (state == BrickletNFC.READER_STATE_AUTHENTICATE_MIFARE_CLASSIC_PAGE_ERROR) {
@@ -80,12 +88,62 @@ public class NFCListenerService {
           }
         }
       }
-    }
+    };
+    dataExtractionService = new BrickletNFC.ReaderStateChangedListener() {
+      private int commonPage = 0;
+      private Logger anylogger = LoggerFactory.getLogger(logger.getName() + ".dataExtractionService");
 
-    ;
+      public void readerStateChanged(int state, boolean idle) {
+        if (state == BrickletNFC.READER_STATE_REQUEST_TAG_ID_READY) {
+          try {
+            Pair<NFCData, PasswordService> candidate = storageHandler.getDataPair(ret);
+            if (candidate.getValue0().passwordNotExisting()) {
+              anylogger.info(String.format("Tag Password not found for Tag [%s]", generateTagIdString(ret)));
+              return;
+            } else if (commonPage < 4) {
+              nfc.readerAuthenticateMifareClassicPage(commonPage, 0, candidate.getValue1().getPassword());
+            } else {
+              commonPage = 0;
+            }
+          } catch (Exception e) {
+            return;
+          }
+        } else if (state == BrickletNFC.READER_STATE_AUTHENTICATE_MIFARE_CLASSIC_PAGE_READY) {
+          try {
+            Pair<NFCData, PasswordService> candidate = storageHandler.getDataPair(ret);
+            nfc.readerRequestPage(commonPage, 16);
+          } catch (TimeoutException | NotConnectedException e) {
+            e.printStackTrace();
+          }
+        } else if (state == BrickletNFC.READER_STATE_AUTHENTICATE_MIFARE_CLASSIC_PAGE_ERROR) {
+          try {
+            Pair<NFCData, PasswordService> candidate = storageHandler.getDataPair(ret);
+            candidate.getValue0().setPassword(new int[]{-1, -1, -1, -1});
+            candidate.getValue1().setEnumeration(0);
+            nfc.readerRequestTagID();
+          } catch (Exception e) {
+            return;
+          }
+        } else if (state == BrickletNFC.READER_STATE_REQUEST_PAGE_READY) {
+          try {
+            int[] page = nfc.readerReadPage();
+            anylogger.info(NFCUtil.printTagData(page, commonPage));
+            storageHandler.insertPageToTag(nfc.readerGetTagID(), commonPage, page);
+            commonPage++;
+            if (commonPage < 4) {
+              nfc.readerRequestPage(commonPage, 16);
+            } else {
+              commonPage = 0;
+            }
+          } catch (Exception e) {
+            return;
+          }
+        }
+      }
+    };
   }
 
-  String generateTagIdString(BrickletNFC.ReaderGetTagID ret) {
+  private String generateTagIdString(BrickletNFC.ReaderGetTagID ret) {
     return NFCUtil.buildStringWithSeperationFromIntArray(ret.tagID);
   }
 
@@ -93,7 +151,7 @@ public class NFCListenerService {
     this.nfc = nfc;
   }
 
-  String buildPassword(int[] pw) {
+  private String buildPassword(int[] pw) {
     return NFCUtil.buildStringWithSeperationFromIntArray(pw);
   }
 

@@ -2,22 +2,21 @@ package custom;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class InitializationService {
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public boolean init() {
-        try{
-            logger.info("Connecting to Brick...");
-            tester toRun = new tester();
-            toRun.exe();
-            return true;
-        }
-        catch (Exception e){
+  @Autowired
+  tester toRun;
 
-        }
-        return false;
-    }
+  private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+  public boolean init() {
+    logger.info("Connecting to Brick...");
+    toRun.exe();
+    return true;
+  }
+
 }

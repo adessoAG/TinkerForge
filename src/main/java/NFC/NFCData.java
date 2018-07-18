@@ -64,7 +64,7 @@ public class NFCData implements Serializable {
   }
 
   /**
-   * prettify the Id to readable String with format HH:HH:HH:HH
+   * prettify the Id to readable String with format HH:HH:HH:HH (H = Hex)
    */
   public String getTagIdAsString() {
     StringBuilder tag = new StringBuilder();

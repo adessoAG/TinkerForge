@@ -9,7 +9,8 @@ import java.util.HashMap;
 
 
 /**
- * Class to load and save a HashMap of Tag data to the local storage on the disk.
+ * Class to load and save a HashMap of Tag data to the local storage on the disk with the provided path/filename from
+ * the application.properties.
  */
 public class NFCTagLoader {
 
@@ -22,7 +23,7 @@ public class NFCTagLoader {
       ois = new ObjectInputStream(fin);
       result = (HashMap<String, Pair<NFCData, PasswordService>>) ois.readObject();
     } catch (Exception ex) {
-      //TODO add exception handling for loading HashMap
+      ex.printStackTrace();
     } finally {
       if (fin != null) {
         try {
@@ -52,7 +53,7 @@ public class NFCTagLoader {
       oos.writeObject(toSave);
       logger.info("File saved.");
     } catch (Exception ex) {
-      //TODO add exception handling for loading HashMap
+      ex.printStackTrace();
     } finally {
       if (fout != null) {
         try {

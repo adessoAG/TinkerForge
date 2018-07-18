@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
+/**
+ * Configuration for distributing the Application Properties.
+ */
 @Component("configService")
 @PropertySource(name = "initProperties", value = "application.properties")
 public class ConfigurationService {
@@ -20,6 +23,21 @@ public class ConfigurationService {
   @Value("${brick.nfc.uid}")
   private String nfcUID;
 
+  @Value("${brick.load.uid}")
+  private String loadBrickUID;
+
+  @Value("${brick.temperature.uid}")
+  private String tempBrickUID;
+
+  @Value("${brick.ambientlight.uid}")
+  private String ambientLightUID;
+
+  @Value("${brick.dualbutton.uid}")
+  private String dualButtonUID;
+
+  @Value("${brick.distanceus.uid}")
+  private String distanceUSUID;
+
   @Value("${brick.motiondetection.uid}")
   private String mmotiondetectionUID;
 
@@ -32,35 +50,34 @@ public class ConfigurationService {
   @Value("${nfc.save.loadData}")
   private boolean loadNFCData;
 
-  public boolean isLoadNFCData() {
-    return loadNFCData;
-  }
+  @Value("${monitor.run}")
+  private boolean runMonitorThread;
 
-  public String getHostname() {
-    return hostname;
-  }
+  public boolean shouldILoadNFCData() { return loadNFCData; }
 
-  public String getPathname() {
-    return pathname;
-  }
+  public String getHostname() { return hostname; }
 
-  public boolean isPrintdiff() {
-    return printdiff;
-  }
+  public String getPathname() { return pathname; }
 
-  public Integer getPort() {
-    return port;
-  }
+  public boolean shouldIPrintDiff() { return printdiff; }
 
-  public String getMasterUID() {
-    return masterUID;
-  }
+  public Integer getPort() { return port; }
 
-  public String getNfcUID() {
-    return nfcUID;
-  }
+  public String getMasterUID() { return masterUID; }
 
-  public String getMmotiondetectionUID() {
-    return mmotiondetectionUID;
-  }
+  public String getNfcUID() { return nfcUID; }
+
+  public String getMmotiondetectionUID() { return mmotiondetectionUID; }
+
+  public String getLoadBrickUID() { return loadBrickUID; }
+
+  public String getTempBrickUID() { return tempBrickUID; }
+
+  public String getAmbientLightUID() { return ambientLightUID; }
+
+  public String getDualButtonUID() { return dualButtonUID; }
+
+  public String getDistanceUSUID() { return distanceUSUID; }
+
+  public boolean shouldIRunAMonitorThread() { return runMonitorThread; }
 }

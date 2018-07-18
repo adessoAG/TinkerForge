@@ -2,9 +2,12 @@ package NFC;
 
 import com.tinkerforge.BrickletNFC;
 
+/**
+ * Utility class to provide some static functions for displaying and converting NFC data.
+ */
 public class NFCUtil {
 
-  public static String printTagData(int[] page, int pageNumber) {
+  public static String returnPrintTagData(int[] page, int pageNumber) {
     StringBuilder result = new StringBuilder("\n");
     result.append(String.format("Page %s : \t   A\t   B\t   C\t   D   \n", pageNumber));
     result.append(String.format("Byte 0-3:\t0x%X \t0x%X \t0x%X \t0x%X\n", page[0], page[1], page[2], page[3]));

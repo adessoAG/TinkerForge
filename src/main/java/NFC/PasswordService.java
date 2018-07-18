@@ -3,8 +3,18 @@ package NFC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Password class to implement a strategy for resolving the correct password.
+ * You can use the @enumeratePassWord function to make your own.
+ * The passwordExplorer will ask each turn for a new password to try with that function call.
+ * For each unique Tag one PasswordService get called. So you can store your progress and/or the resolved password when
+ * successful.
+ */
 public class PasswordService {
-
+  private Logger logger = LoggerFactory.getLogger(this.getClass());
+  private int[] password;
+  private int enumeration;
+  private final int[] tagID;
   static final int[][] commonPasswords = {
       {0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF},
       {0XD3, 0XF7, 0XD3, 0XF7, 0XD3, 0XF7},
@@ -16,10 +26,6 @@ public class PasswordService {
       {0X00, 0X00, 0X00, 0X00, 0X00, 0X00},
       {0XAB, 0XCD, 0XEF, 0X12, 0X34, 0X56},
   };
-  private final int[] tagID;
-  private Logger logger = LoggerFactory.getLogger(this.getClass());
-  private int[] password;
-  private int enumeration;
 
   public PasswordService(int[] tagID) {
     this.tagID = tagID;
@@ -45,6 +51,9 @@ public class PasswordService {
     this.enumeration = enumeration;
   }
 
+  /**
+   * After checking all common passwords try to bruteforce the password.
+   */
   public int[] enumeratePassWord() {
     if (enumeration < commonPasswords.length) {
       this.password = commonPasswords[enumeration];
@@ -82,12 +91,6 @@ public class PasswordService {
         password[2] = 0x00;
         password[1] = 0x00;
       } else {
-        password[5] = 0x00;
-        password[4] = 0x00;
-        password[3] = 0x00;
-        password[2] = 0x00;
-        password[1] = 0x00;
-        password[0] = 0x00;
         logger.info("Password not found!");
       }
     }

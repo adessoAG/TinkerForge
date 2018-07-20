@@ -22,7 +22,7 @@ public class InitializationService {
      */
     toRun.exe();
     /*
-      If your exe() finishes at some point, the application will close.
+      If your initNFCBrick() finishes at some point, the application will close.
       If you want to keep it alive put a Thread.sleep(XXXXX) or
       preferably System.in.read() here if you do not need user input.
      */

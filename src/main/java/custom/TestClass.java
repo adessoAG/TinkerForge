@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * This is the main class to code in. Just throw some code in the @exe function.
+ * This is the main class to code in. Just throw some code in the @initNFCBrick function.
  */
 @Service
 public class TestClass {
@@ -24,7 +24,7 @@ public class TestClass {
   private ConfigurationService configService;
 
   @Autowired
-  private RegisterBrickService nfcRegister;
+  private RegisterBrickService brickRegisterService;
 
   @Autowired
   private NFCStorageHandler storageHandler;
@@ -33,6 +33,7 @@ public class TestClass {
   private Monitor monitorThread = new Monitor(this);
   private IPConnection ipcon = new IPConnection();
   private BrickletNFC nfc;
+  private BrickletLoadCell loadCell;
   private NFCListenerService listenerService;
   private ArrayList<BrickletNFC.ReaderStateChangedListener> activeListener = new ArrayList<>();
 
@@ -41,15 +42,15 @@ public class TestClass {
    */
   public void exe() {
     try {
-      listenerService.registerServices();
-      activeListener.add(listenerService.explorerService);
-      activeListener.add(listenerService.dataExtractionService);
-      activeListener.add(listenerService.passwordExplorer);
-      activeListener.forEach((x) -> nfc.addReaderStateChangedListener(x));
-      nfc.setMode(BrickletNFC.MODE_READER);
+//      listenerService.registerServices();
+//      activeListener.add(listenerService.explorerService);
+//      activeListener.add(listenerService.dataExtractionService);
+//      activeListener.add(listenerService.passwordExplorer);
+//      activeListener.forEach((x) -> nfc.addReaderStateChangedListener(x));
+//      nfc.setMode(BrickletNFC.MODE_READER);
       logger.info("Press key to exit.");
       System.in.read();
-    } catch (NotConnectedException | TimeoutException | IOException e) {
+    } catch (IOException e) {
       e.printStackTrace();
     }
   }
@@ -57,7 +58,8 @@ public class TestClass {
   @PostConstruct
   public void initIt() {
     logger.info("Connecting to Brick...");
-    nfc = nfcRegister.exe(ipcon);
+    nfc = brickRegisterService.initNFCBrick(ipcon);
+    loadCell = brickRegisterService.initLoadCell(ipcon);
     try {
       ipcon.connect(configService.getHostname(), configService.getPort());
     } catch (AlreadyConnectedException | NetworkException e) {

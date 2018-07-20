@@ -20,16 +20,7 @@ public class Monitor implements Runnable {
 
   public void run() {
     while (true) {
-      /**
-       * Do stuff here
-       */
-      try {
-        logger.info(String.valueOf(myclass.loadCell.getWeight()));
-      } catch (TimeoutException e) {
-        e.printStackTrace();
-      } catch (NotConnectedException e) {
-        e.printStackTrace();
-      }
+      //TODO Do stuff here
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) {

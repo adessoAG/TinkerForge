@@ -38,27 +38,23 @@ public class TestClass {
   private ArrayList<BrickletNFC.ReaderStateChangedListener> activeListener = new ArrayList<>();
 
 
-  public void liveCoding(){
-
-  }
-
 
   /**
    * Example with use of some NFC Services.
    */
   public void exe() {
+    //TODO write your own code or modify as you like
     try {
-//      listenerService.registerServices();
-//      activeListener.add(listenerService.explorerService);
-//      activeListener.add(listenerService.dataExtractionService);
-//      activeListener.add(listenerService.passwordExplorer);
-//      activeListener.forEach((x) -> nfc.addReaderStateChangedListener(x));
-//      nfc.setMode(BrickletNFC.MODE_READER);
-      liveCoding();
+      listenerService.registerServices();
+      activeListener.add(listenerService.explorerService);
+      activeListener.add(listenerService.dataExtractionService);
+      activeListener.add(listenerService.passwordExplorer);
+      activeListener.forEach((x) -> nfc.addReaderStateChangedListener(x));
+      nfc.setMode(BrickletNFC.MODE_READER);
       monitorThread.run();
       logger.info("Press key to exit.");
       System.in.read();
-    } catch (IOException e) {
+    } catch (IOException | NotConnectedException | TimeoutException e) {
       e.printStackTrace();
     }
   }
@@ -66,6 +62,7 @@ public class TestClass {
   @PostConstruct
   public void initIt() {
     logger.info("Connecting to Brick...");
+    //TODO load all your bricks here to be initialised correctly
     nfc = brickRegisterService.initNFCBrick(ipcon);
     loadCell = brickRegisterService.initLoadCell(ipcon);
     try {

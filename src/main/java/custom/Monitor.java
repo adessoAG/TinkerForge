@@ -1,5 +1,7 @@
 package custom;
 
+import com.tinkerforge.NotConnectedException;
+import com.tinkerforge.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +23,13 @@ public class Monitor implements Runnable {
       /**
        * Do stuff here
        */
+      try {
+        logger.info(String.valueOf(myclass.loadCell.getWeight()));
+      } catch (TimeoutException e) {
+        e.printStackTrace();
+      } catch (NotConnectedException e) {
+        e.printStackTrace();
+      }
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) {

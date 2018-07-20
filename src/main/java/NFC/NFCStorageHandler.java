@@ -28,9 +28,9 @@ public class NFCStorageHandler {
   @PostConstruct
   public void initIt() {
     if (configService.shouldILoadNFCData()) {
-      NFCTagLoader.deserializeTagData(configService.getPathname());
+      this.dataObject = NFCTagLoader.deserializeTagData(configService.getPathname());
       if (dataObject == null) {
-        logger.info("Error on loading Tag data.");
+        logger.info("Error on loading Tag data. File not found or corrupted. Data will be saved when exiting with exit code 0.");
       }
     }
     if (dataObject == null) {

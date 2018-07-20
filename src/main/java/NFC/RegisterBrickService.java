@@ -15,7 +15,7 @@ public class RegisterBrickService {
     return new BrickletNFC(configService.getNfcUID(), ipcon);
   }
 
-  public BrickletLoadCell initLoadCell(IPConnection ipcon) { return new BrickletLoadCell(configService.getLoadBrickUID(), ipcon); }
+  public BrickletLoadCellV2 initLoadCell(IPConnection ipcon) { return new BrickletLoadCellV2(configService.getLoadBrickUID(), ipcon); }
 
   public BrickletAmbientLightV2 initAmbientLight(IPConnection ipcon) { return new BrickletAmbientLightV2(configService.getAmbientLightUID(), ipcon); }
 

@@ -20,7 +20,7 @@ public class ConfigurationService {
   @Value("${brick.master.uid}")
   private String masterUID;
 
-  @Value("${brick.nfc.uid}")
+  @Value("${brick.nfcbrick.uid}")
   private String nfcUID;
 
   @Value("${brick.load.uid}")
@@ -41,13 +41,13 @@ public class ConfigurationService {
   @Value("${brick.motiondetection.uid}")
   private String mmotiondetectionUID;
 
-  @Value("${nfc.save.pathname}")
+  @Value("${nfcBrick.save.pathname}")
   private String pathname;
 
-  @Value("${nfc.read.printchanges:false}")
+  @Value("${nfcBrick.read.printchanges:false}")
   private boolean printdiff;
 
-  @Value("${nfc.save.loadData}")
+  @Value("${nfcBrick.save.loadData}")
   private boolean loadNFCData;
 
   @Value("${monitor.run}")

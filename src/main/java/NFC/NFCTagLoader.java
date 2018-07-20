@@ -15,6 +15,10 @@ import java.util.HashMap;
 public class NFCTagLoader {
 
   static HashMap<String, Pair<NFCData, PasswordService>> deserializeTagData(String pathName) {
+    File f = new File(pathName);
+    if(!f.exists()) {
+      return null;
+    }
     FileInputStream fin = null;
     ObjectInputStream ois = null;
     HashMap<String, Pair<NFCData, PasswordService>> result = null;

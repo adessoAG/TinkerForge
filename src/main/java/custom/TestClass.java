@@ -33,9 +33,15 @@ public class TestClass {
   private Monitor monitorThread = new Monitor(this);
   private IPConnection ipcon = new IPConnection();
   private BrickletNFC nfc;
-  private BrickletLoadCell loadCell;
+  public BrickletLoadCellV2 loadCell;
   private NFCListenerService listenerService;
   private ArrayList<BrickletNFC.ReaderStateChangedListener> activeListener = new ArrayList<>();
+
+
+  public void liveCoding(){
+
+  }
+
 
   /**
    * Example with use of some NFC Services.
@@ -48,6 +54,8 @@ public class TestClass {
 //      activeListener.add(listenerService.passwordExplorer);
 //      activeListener.forEach((x) -> nfc.addReaderStateChangedListener(x));
 //      nfc.setMode(BrickletNFC.MODE_READER);
+      liveCoding();
+      monitorThread.run();
       logger.info("Press key to exit.");
       System.in.read();
     } catch (IOException e) {

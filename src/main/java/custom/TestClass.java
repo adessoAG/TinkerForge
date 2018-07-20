@@ -33,32 +33,23 @@ public class TestClass {
   private Monitor monitorThread = new Monitor(this);
   private IPConnection ipcon = new IPConnection();
   private BrickletNFC nfc;
-  public BrickletLoadCellV2 loadCell;
   private NFCListenerService listenerService;
   private ArrayList<BrickletNFC.ReaderStateChangedListener> activeListener = new ArrayList<>();
-
-
-  public void liveCoding(){
-
-  }
-
 
   /**
    * Example with use of some NFC Services.
    */
   public void exe() {
     try {
-//      listenerService.registerServices();
-//      activeListener.add(listenerService.explorerService);
-//      activeListener.add(listenerService.dataExtractionService);
-//      activeListener.add(listenerService.passwordExplorer);
-//      activeListener.forEach((x) -> nfc.addReaderStateChangedListener(x));
-//      nfc.setMode(BrickletNFC.MODE_READER);
-      liveCoding();
-      monitorThread.run();
+      listenerService.registerServices();
+      activeListener.add(listenerService.explorerService);
+      activeListener.add(listenerService.dataExtractionService);
+      activeListener.add(listenerService.passwordExplorer);
+      activeListener.forEach((x) -> nfc.addReaderStateChangedListener(x));
+      nfc.setMode(BrickletNFC.MODE_READER);
       logger.info("Press key to exit.");
       System.in.read();
-    } catch (IOException e) {
+    } catch (IOException | NotConnectedException | TimeoutException e) {
       e.printStackTrace();
     }
   }
@@ -67,7 +58,6 @@ public class TestClass {
   public void initIt() {
     logger.info("Connecting to Brick...");
     nfc = brickRegisterService.initNFCBrick(ipcon);
-    loadCell = brickRegisterService.initLoadCell(ipcon);
     try {
       ipcon.connect(configService.getHostname(), configService.getPort());
     } catch (AlreadyConnectedException | NetworkException e) {
